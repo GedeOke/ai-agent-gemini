@@ -35,6 +35,7 @@ class KnowledgeItemModel(Base):
     content = Column(Text, nullable=False)
     tags = Column(JSON, default=list)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    embedding = Column(JSON, default=list)  # store vector as list of floats (for sqlite/postgres json)
 
     tenant = relationship("Tenant", back_populates="knowledge_items")
 
