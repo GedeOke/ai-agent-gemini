@@ -20,6 +20,7 @@ class Settings(BaseSettings):
         description="Async DB URL. Use Postgres e.g. postgresql+asyncpg://user:pass@host/db",
     )
     auto_create_tables: bool = True
+    followup_poll_interval_seconds: int = Field(default=15, description="Scheduler polling interval for follow-ups")
 
     @field_validator("cors_origins", mode="before")
     @classmethod

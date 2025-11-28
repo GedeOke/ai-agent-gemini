@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +25,7 @@ class FollowUpService:
                     scheduled_at=request.scheduled_at,
                     channel=request.channel,
                     meta=request.metadata,
+                    status="pending",
                 )
             )
             await session.commit()
@@ -50,3 +51,10 @@ class FollowUpService:
             )
             for row in rows
         ]
+
+    async def list_by_status(self, session: AsyncSession, tenant_id: str, status: Optional[str] = None) -> List[FollowUpModel]:
+        stmt = select(FollowUpModel).where(FollowUpModel.tenant_id == tenant_id)
+        if status:
+            stmt = stmt.where(FollowUpModel.status == status)
+        result = await session.execute(stmt.order_by(FollowUpModel.scheduled_at))
+        return result.scalars().all()

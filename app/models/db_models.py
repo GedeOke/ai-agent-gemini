@@ -51,5 +51,8 @@ class FollowUpModel(Base):
     channel = Column(String, nullable=False, default="web")
     meta = Column("metadata", JSON, default=dict)  # store in DB column "metadata" but avoid reserved attr name
     created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String, nullable=False, default="pending")  # pending|sent|failed
+    last_error = Column(String, nullable=True)
+    sent_at = Column(DateTime, nullable=True)
 
     tenant = relationship("Tenant", back_populates="followups")

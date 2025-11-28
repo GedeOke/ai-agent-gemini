@@ -1,14 +1,14 @@
 # AI Agent Backend (Gemini) — Backend Skeleton + Persistence
 
-Branch: `feature/rag-embeddings`
+Branch: `feature/followup-scheduler`
 
 ## Ringkas
-Backend FastAPI untuk AI Agent dengan persistence, per-tenant auth, dan RAG dengan embeddings Gemini (cosine similarity in-app). Cocok jadi pondasi sebelum tambah channel messaging dan scheduler/worker.
+Backend FastAPI untuk AI Agent dengan persistence, per-tenant auth, RAG embeddings, dan scheduler follow-up sederhana (polling). Cocok jadi pondasi sebelum tambah channel messaging dan scheduler/worker berbasis queue.
 
 ## Arsitektur Singkat
 - `app/main.py` — FastAPI app, CORS, error handlers, router registrasi, auto create table (opsional).
 - `app/routers/` — endpoint: `chat`, `kb` (knowledge base), `tenants`, `followup`, `health`.
-- `app/services/` — orchestrator, prompt builder, post-processing (split bubble), RAG dengan embeddings (DB), follow-up (DB), tenant service, embedding client (Gemini).
+- `app/services/` — orchestrator, prompt builder, post-processing (split bubble), RAG dengan embeddings (DB), follow-up (DB), tenant service, embedding client (Gemini), follow-up scheduler (polling).
 - `app/adapters/` — Gemini client, shipping mock.
 - `app/utils/` — logging setup, API key gate (per-tenant / global).
 - `app/models/` — `db_models.py` (SQLAlchemy ORM) dan `schemas.py` (Pydantic).
@@ -43,16 +43,17 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 - `GET /tenants/{tenant_id}/settings` — ambil konfigurasi tenant (persona, SOP, jam kerja, API key).
 - `PUT /tenants/{tenant_id}/settings` — buat/perbarui tenant; jika `api_key` kosong akan dibuat random.
 - `POST /followup/schedule` — jadwalkan follow-up (DB).
-- `GET /followup/pending` — lihat antrian follow-up per tenant.
+- `GET /followup/pending` — lihat antrian follow-up per tenant (pending).
+- `GET /followup?status=pending|sent|failed` — filter follow-up per status.
 - `GET /health` — status sederhana.
 
 ## Batasan saat ini
-- Follow-up masih sekadar simpan DB; belum ada scheduler/worker.
+- Follow-up dispatch masih polling di dalam app (belum ada queue/worker dan belum kirim ke channel).
 - Belum ada channel adapter (WA/Telegram), belum ada media/STT/TTS.
 - Belum ada rate limiting dan telemetry/metrics.
 
 ## Rekomendasi next steps
-1) Integrasi vector DB/ANN (Weaviate/PGVector/Redis) untuk skala besar; simpan embeddings di store khusus.  
-2) Tambah scheduler/worker (Redis/Queue) untuk follow-up & reminder.  
+1) Integrasi queue/worker (Redis) untuk follow-up/reminder dispatch dan pengiriman ke channel.  
+2) Integrasi vector DB/ANN (Weaviate/PGVector/Redis) untuk skala besar.  
 3) Hardening auth: key per-tenant rotasi, rate limiting, logging terstruktur + metrics.  
 4) Channel adapter pertama (Telegram/WA) + media handling + shipping API nyata.

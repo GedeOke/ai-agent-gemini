@@ -1,12 +1,14 @@
 from app.adapters.llm_gemini import GeminiClient
 from app.config import settings
 from app.db import get_session
+from app.db import SessionLocal
 from app.services.embeddings import EmbeddingClient
 from app.services.followup import FollowUpService
 from app.services.orchestrator import Orchestrator
 from app.services.post_processing import PostProcessor
 from app.services.prompt import PromptBuilder
 from app.services.rag import RAGService
+from app.services.scheduler import FollowUpScheduler
 from app.services.tenant import TenantService
 
 # Shared singletons for now; swap with DI container later.
@@ -18,6 +20,7 @@ llm_client = GeminiClient(settings.gemini_api_key)
 followup_service = FollowUpService()
 tenant_service = TenantService()
 orchestrator = Orchestrator(llm_client, rag_service, prompt_builder, post_processor)
+scheduler = FollowUpScheduler(poll_interval_seconds=settings.followup_poll_interval_seconds)
 
 __all__ = [
     "rag_service",
@@ -29,4 +32,6 @@ __all__ = [
     "tenant_service",
     "orchestrator",
     "get_session",
+    "SessionLocal",
+    "scheduler",
 ]

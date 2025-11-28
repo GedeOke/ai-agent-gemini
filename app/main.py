@@ -7,10 +7,11 @@ from fastapi.responses import JSONResponse
 from starlette import status
 
 from app.config import settings
-from app.db import engine
+from app.db import SessionLocal, engine
 from app.models.db_models import Base
 from app.routers import chat, followup, kb, tenant
 from app.utils.logging import configure_logging
+from app import dependencies
 
 configure_logging(settings.log_level)
 logger = logging.getLogger(__name__)
@@ -53,6 +54,7 @@ def create_app() -> FastAPI:
         if settings.auto_create_tables:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
+        await dependencies.scheduler.start(SessionLocal)
 
     @app.get("/health")
     async def health():
