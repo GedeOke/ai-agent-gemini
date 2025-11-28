@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from starlette import status
 
 from app.config import settings
+from app.db import engine
+from app.models.db_models import Base
 from app.routers import chat, followup, kb, tenant
 from app.utils.logging import configure_logging
 
@@ -45,6 +47,12 @@ def create_app() -> FastAPI:
     app.include_router(kb.router, prefix="/kb", tags=["knowledge"])
     app.include_router(tenant.router, prefix="/tenants", tags=["tenant"])
     app.include_router(followup.router, prefix="/followup", tags=["followup"])
+
+    @app.on_event("startup")
+    async def _startup():
+        if settings.auto_create_tables:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
 
     @app.get("/health")
     async def health():

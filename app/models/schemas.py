@@ -65,6 +65,7 @@ class SalesSop(BaseModel):
 
 class TenantSettings(BaseModel):
     tenant_id: str
+    api_key: Optional[str] = Field(default=None, description="API key per tenant")
     persona: PersonaSettings = Field(default_factory=PersonaSettings)
     sop: SalesSop = Field(default_factory=SalesSop)
     working_hours: str = Field(default="09:00-17:00")

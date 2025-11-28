@@ -3,20 +3,37 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     app_name: str = "AI Agent Backend"
     api_key: str = Field(default="", description="Shared header secret for internal calls")
     gemini_api_key: str = Field(default="", description="API key for Gemini access")
-    cors_origins: list[str] = Field(default_factory=lambda: ["*"])
+    cors_origins: list[str] | str = Field(default="*")
     log_level: str = "INFO"
     debug: bool = False
+    database_url: str = Field(
+        default="sqlite+aiosqlite:///./local.db",
+        description="Async DB URL. Use Postgres e.g. postgresql+asyncpg://user:pass@host/db",
+    )
+    auto_create_tables: bool = True
 
     @field_validator("cors_origins", mode="before")
     @classmethod
-    def _split_origins(cls, value: str | list[str]) -> list[str]:
+    def _split_origins(cls, value: str | list[str] | None) -> list[str]:
+        if value is None:
+            return ["*"]
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            val = value.strip()
+            if not val:
+                return ["*"]
+            # Support simple list strings like '["*"]' or comma-separated
+            if val.startswith("[") and val.endswith("]"):
+                val = val.strip("[]")
+            return [origin.strip().strip('"').strip("'") for origin in val.split(",") if origin.strip()]
         return value
 
 

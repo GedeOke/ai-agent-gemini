@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.adapters.llm_gemini import GeminiClient
@@ -25,9 +26,11 @@ class Orchestrator:
         self.prompt_builder = prompt_builder
         self.post_processor = post_processor
 
-    async def handle_chat(self, payload: ChatRequest, tenant_settings: TenantSettings) -> ChatResponse:
+    async def handle_chat(
+        self, session: AsyncSession, payload: ChatRequest, tenant_settings: TenantSettings
+    ) -> ChatResponse:
         try:
-            retrieved_context = await self.rag_service.retrieve(payload)
+            retrieved_context = await self.rag_service.retrieve(session, payload)
         except Exception:  # pragma: no cover - defensive
             logger.exception("Context retrieval failed, continuing without context")
             retrieved_context = []

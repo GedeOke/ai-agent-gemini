@@ -1,6 +1,10 @@
 import logging
 from typing import List
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.db_models import FollowUpModel
 from app.models.schemas import FollowUpRequest
 
 logger = logging.getLogger(__name__)
@@ -8,19 +12,41 @@ logger = logging.getLogger(__name__)
 
 class FollowUpService:
     """
-    Placeholder scheduler; swap with queue/worker later.
+    DB-backed placeholder; swap with queue/worker later.
     """
 
-    def __init__(self) -> None:
-        self._queue: List[FollowUpRequest] = []
-
-    async def schedule(self, request: FollowUpRequest) -> None:
+    async def schedule(self, session: AsyncSession, request: FollowUpRequest) -> None:
         try:
-            self._queue.append(request)
-            logger.info("Follow-up scheduled for user=%s at %s", request.user_id, request.scheduled_at)
+            session.add(
+                FollowUpModel(
+                    tenant_id=request.tenant_id,
+                    user_id=request.user_id,
+                    reason=request.reason,
+                    scheduled_at=request.scheduled_at,
+                    channel=request.channel,
+                    meta=request.metadata,
+                )
+            )
+            await session.commit()
+            logger.info("Follow-up scheduled for tenant=%s user=%s at %s", request.tenant_id, request.user_id, request.scheduled_at)
         except Exception as exc:  # pragma: no cover - defensive
+            await session.rollback()
             logger.exception("Failed to schedule follow-up")
             raise exc
 
-    async def list_pending(self) -> List[FollowUpRequest]:
-        return list(self._queue)
+    async def list_pending(self, session: AsyncSession, tenant_id: str) -> List[FollowUpRequest]:
+        result = await session.execute(
+            select(FollowUpModel).where(FollowUpModel.tenant_id == tenant_id).order_by(FollowUpModel.scheduled_at)
+        )
+        rows = result.scalars().all()
+        return [
+            FollowUpRequest(
+                tenant_id=row.tenant_id,
+                user_id=row.user_id,
+                reason=row.reason,
+                scheduled_at=row.scheduled_at,
+                channel=row.channel,
+                metadata=row.meta or {},
+            )
+            for row in rows
+        ]
