@@ -1,6 +1,6 @@
 # AI Agent Backend (Gemini) — Backend Skeleton + Persistence
 
-Branch: `feature/followup-scheduler`
+Branch: `feature/dashboard-ui` (dashboard), backend latest on `feature/followup-scheduler`
 
 ## Ringkas
 Backend FastAPI untuk AI Agent dengan persistence, per-tenant auth, RAG embeddings, dan scheduler follow-up sederhana (polling). Cocok jadi pondasi sebelum tambah channel messaging dan scheduler/worker berbasis queue.
@@ -57,3 +57,15 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 2) Integrasi vector DB/ANN (Weaviate/PGVector/Redis) untuk skala besar.  
 3) Hardening auth: key per-tenant rotasi, rate limiting, logging terstruktur + metrics.  
 4) Channel adapter pertama (Telegram/WA) + media handling + shipping API nyata.
+
+## Dashboard (frontend)
+- Lokasi: `dashboard/` (Vite + React + TS).
+- Fungsi: simpan konfigurasi API (base URL, tenant id, API key), load/update tenant settings, upsert KB item, lihat follow-up per status, cek health.
+- Menjalankan:
+  ```
+  cd dashboard
+  npm install
+  npm run dev   # buka URL yang tertera (default 5173)
+  ```
+- Build (opsional): `npm run build`
+- Catatan: isi base URL/API key/tenant ID di form “Konfigurasi API”; data tersimpan di localStorage. Pastikan backend berjalan dan schema DB up-to-date (kolom follow-up status/sent_at/last_error).

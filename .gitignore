@@ -9,6 +9,10 @@ __pycache__/
 .vscode/
 logs/
 *.log
+node_modules/
+dist/
+dashboard/node_modules/
+dashboard/dist/
 data/
 output/
 *.sqlite3
