@@ -4,6 +4,7 @@ import logging
 from typing import List
 
 from fastapi import HTTPException, UploadFile
+from openpyxl import load_workbook
 from pypdf import PdfReader
 from starlette import status
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 class IngestService:
     """
     Parse uploaded files into KB chunks to be embedded and stored.
-    Supported: pdf, txt, md, csv, tsv.
+    Supported: pdf, txt, md, csv, tsv, xlsx/xls.
     """
 
     def __init__(self, chunk_size: int = 800, chunk_overlap: int = 100) -> None:
@@ -28,6 +29,7 @@ class IngestService:
             "text/csv",
             "text/tab-separated-values",
             "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         }
 
     def _chunk_text(self, text: str) -> List[str]:
@@ -82,6 +84,27 @@ class IngestService:
                 detail="Failed to parse CSV/TSV",
             ) from exc
 
+    def _parse_excel(self, data: bytes) -> str:
+        try:
+            wb = load_workbook(filename=io.BytesIO(data), read_only=True, data_only=True)
+            sheets_text = []
+            for sheet in wb.sheetnames:
+                ws = wb[sheet]
+                rows = []
+                for row in ws.iter_rows(values_only=True):
+                    cells = [str(cell) for cell in row if cell is not None]
+                    if cells:
+                        rows.append(" | ".join(cells))
+                if rows:
+                    sheets_text.append(f"[Sheet: {sheet}]\n" + "\n".join(rows))
+            return "\n\n".join(sheets_text)
+        except Exception as exc:
+            logger.exception("Failed to parse Excel")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to parse Excel file",
+            ) from exc
+
     async def parse_file(self, file: UploadFile, tags: List[str]) -> List[KnowledgeItem]:
         if file.content_type not in self.allowed_types:
             raise HTTPException(
@@ -93,14 +116,25 @@ class IngestService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File is empty")
 
         text = ""
-        if file.content_type == "application/pdf":
+        ctype = file.content_type
+        filename = (file.filename or "").lower()
+
+        if ctype == "application/pdf":
             text = self._parse_pdf(data)
-        elif file.content_type in {"text/plain", "text/markdown"}:
+        elif ctype in {"text/plain", "text/markdown"}:
             text = self._parse_text(data)
-        elif file.content_type in {"text/csv", "application/vnd.ms-excel"}:
+        elif ctype == "text/csv":
             text = self._parse_csv(data, delimiter=",")
-        elif file.content_type == "text/tab-separated-values":
+        elif ctype == "text/tab-separated-values":
             text = self._parse_csv(data, delimiter="\t")
+        elif ctype == "application/vnd.ms-excel":
+            # Disambiguate CSV mislabeled as ms-excel vs real Excel
+            if filename.endswith(".csv"):
+                text = self._parse_csv(data, delimiter=",")
+            else:
+                text = self._parse_excel(data)
+        elif ctype == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            text = self._parse_excel(data)
 
         text = text.strip()
         if not text:

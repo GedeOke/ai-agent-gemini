@@ -40,7 +40,7 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 ## Endpoint utama
 - `POST /chat` — payload `ChatRequest` (tenant_id, user_id, messages[], channel, locale). Alur: retrieve konteks (keyword, DB), build prompt (persona + SOP), panggil Gemini, pecah jawaban jadi bubble.
 - `POST /kb/upsert` — tambah/ubah pengetahuan (DB) + simpan embedding. Membutuhkan tenant sudah ada.
-- `POST /kb/upload` — upload file (pdf/txt/md/csv/tsv) multipart, otomatis parse→chunk→embed→KB.
+- `POST /kb/upload` — upload file (pdf/txt/md/csv/tsv/xlsx) multipart, otomatis parse→chunk→embed→KB.
 - `GET /tenants/{tenant_id}/settings` — ambil konfigurasi tenant (persona, SOP, jam kerja, API key).
 - `PUT /tenants/{tenant_id}/settings` — buat/perbarui tenant; jika `api_key` kosong akan dibuat random.
 - `POST /followup/schedule` — jadwalkan follow-up (DB).
@@ -50,7 +50,7 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 
 ## Batasan saat ini
 - Follow-up dispatch masih polling di dalam app (belum ada queue/worker dan belum kirim ke channel).
-- Upload KB: belum ada antrian/worker; parsing synchronous; hanya pdf/txt/md/csv/tsv sederhana.
+- Upload KB: belum ada antrian/worker; parsing synchronous; mendukung pdf/txt/md/csv/tsv/xlsx sederhana.
 - Belum ada channel adapter (WA/Telegram), belum ada media/STT/TTS.
 - Belum ada rate limiting dan telemetry/metrics.
 
