@@ -28,7 +28,7 @@ class EmbeddingClient:
             "requests": [
                 {
                     "model": self.model,
-                    "contents": [{"parts": [{"text": text}]}],
+                    "content": {"parts": [{"text": text}]},
                 }
                 for text in texts_list
             ]
