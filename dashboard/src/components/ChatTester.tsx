@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type { ChatMessage } from "../types";
 
 type Props = {
@@ -16,33 +17,47 @@ export function ChatTester({ messages, input, onInputChange, onSend }: Props) {
       </div>
       <div className="p-4 space-y-3">
         <div className="h-72 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3 space-y-3">
-          {messages.map((m, idx) => (
-            <div key={idx} className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow ${
-                  m.sender === "user"
-                    ? "bg-primary text-white"
-                    : "bg-white dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
-                }`}
+          <AnimatePresence initial={false}>
+            {messages.map((m, idx) => (
+              <motion.div
+                key={`${m.time}-${idx}-${m.text || "typing"}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div className={`${m.typing ? "animate-pulse" : ""}`}>
-                  {m.typing ? (
-                    <span className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-white/70 dark:bg-slate-300/80 inline-block" />
-                      <span className="w-2 h-2 rounded-full bg-white/60 dark:bg-slate-400/80 inline-block" />
-                      <span className="w-2 h-2 rounded-full bg-white/50 dark:bg-slate-500/80 inline-block" />
-                    </span>
-                  ) : (
-                    m.text
+                <div
+                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow ${
+                    m.sender === "user"
+                      ? "bg-primary text-white"
+                      : "bg-white dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
+                  }`}
+                >
+                  <div>
+                    {m.typing ? (
+                      <div className="flex items-center gap-1">
+                        {[0, 1, 2].map((dot) => (
+                          <motion.span
+                            key={dot}
+                            className="w-2 h-2 rounded-full bg-white/80 dark:bg-slate-300/80 inline-block"
+                            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1, 0.9] }}
+                            transition={{ duration: 0.8, repeat: Infinity, delay: dot * 0.2 }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      m.text
+                    )}
+                  </div>
+                  <div className="text-[10px] opacity-70 mt-1">{m.time}</div>
+                  {m.context && m.context.length > 0 && (
+                    <div className="text-[10px] opacity-80 mt-1">ctx: {m.context.slice(0, 2).join(" | ")}</div>
                   )}
                 </div>
-                <div className="text-[10px] opacity-70 mt-1">{m.time}</div>
-                {m.context && m.context.length > 0 && (
-                  <div className="text-[10px] opacity-80 mt-1">ctx: {m.context.slice(0, 2).join(" | ")}</div>
-                )}
-              </div>
-            </div>
-          ))}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
         <div className="flex gap-2">
           <input
