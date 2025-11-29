@@ -23,8 +23,16 @@ class EmbeddingClient:
         if not self.api_key:
             # return zero vectors placeholder
             return [[0.0] * 32 for _ in texts_list]
-        url = f"{self.base_url}/models/embedding-001:batchEmbedText"
-        payload = {"requests": [{"model": self.model, "text": text} for text in texts_list]}
+        url = f"{self.base_url}/models/embedding-001:batchEmbedContents"
+        payload = {
+            "requests": [
+                {
+                    "model": self.model,
+                    "contents": [{"parts": [{"text": text}]}],
+                }
+                for text in texts_list
+            ]
+        }
         try:
             async with httpx.AsyncClient(timeout=20.0) as client:
                 res = await client.post(url, params={"key": self.api_key}, json=payload)
