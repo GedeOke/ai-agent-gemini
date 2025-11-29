@@ -39,6 +39,10 @@ python main.py
 Header wajib: `X-API-Key: <tenant_or_global_key>`.  
 Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 
+## Migrasi DB (Alembic)
+- Set `DATABASE_URL` di `.env` (untuk Postgres gunakan koneksi sync atau biarkan alembic mengonversi async URL).
+- Jalankan: `alembic upgrade head`
+
 ## Endpoint utama
 - `POST /chat` — payload `ChatRequest` (tenant_id, user_id, messages[], channel, locale). Alur: retrieve konteks (DB RAG), build prompt (persona + SOP dengan hint langkah), panggil LLM, pecah jawaban jadi bubble.
 - `POST /kb/upsert` — tambah/ubah pengetahuan (DB) + simpan embedding. Membutuhkan tenant sudah ada.
