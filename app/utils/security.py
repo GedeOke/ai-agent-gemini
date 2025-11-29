@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 async def verify_api_key(
     session: Annotated[AsyncSession, Depends(get_session)],
-    x_api_key: Annotated[str | None, Header(convert_underscores=False)] = None,
-    x_tenant_id: Annotated[str | None, Header(convert_underscores=False)] = None,
+    x_api_key: Annotated[str | None, Header(convert_underscores=True)] = None,
+    x_tenant_id: Annotated[str | None, Header(convert_underscores=True)] = None,
 ) -> str:
     """
     API key gate with per-tenant support.
