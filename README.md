@@ -53,6 +53,8 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 - `GET /contacts/{id}` — detail contact.
 - `POST /contacts/logs` — simpan log percakapan (history).
 - `GET /contacts/logs` — list history (opsional filter contact_id).
+- `GET /sop/state` — cek state SOP (contact_id/user_id).
+- `PUT /sop/state` — set/reset state SOP.
 - `GET /health` — status sederhana.
 
 ## Batasan saat ini

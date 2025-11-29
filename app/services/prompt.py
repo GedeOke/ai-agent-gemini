@@ -20,12 +20,13 @@ class PromptBuilder:
         payload: ChatRequest,
         retrieved_context: List[str],
         tenant_settings: TenantSettings,
+        sop_current: str | None = None,
     ) -> str:
         persona = tenant_settings.persona
         sop_steps = "\n".join(f"{step.order}. {step.description}" for step in tenant_settings.sop.steps)
         sop_hint = ""
         if self.sop_machine:
-            sop_hint = self.sop_machine.sop_hint(tenant_settings.sop, payload)
+            sop_hint = self.sop_machine.sop_hint(tenant_settings.sop, sop_current)
         context_block = "\n".join(retrieved_context) if retrieved_context else "Tidak ada konteks tambahan."
 
         prompt = (

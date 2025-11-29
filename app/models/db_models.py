@@ -87,3 +87,14 @@ class ChatMessageModel(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     contact = relationship("ContactModel", back_populates="chat_messages")
+
+
+class SopStateModel(Base):
+    __tablename__ = "sop_states"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(String, ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False, index=True)
+    contact_id = Column(UUID(as_uuid=True), ForeignKey("contacts.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(String, nullable=True)
+    current_step = Column(String, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

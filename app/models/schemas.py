@@ -111,3 +111,10 @@ class ChatMessage(BaseModel):
     content: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
     created_at: Optional[datetime] = None
+
+
+class SopState(BaseModel):
+    tenant_id: str
+    contact_id: Optional[str] = None
+    user_id: Optional[str] = None
+    current_step: Optional[str] = None

@@ -9,7 +9,7 @@ from starlette import status
 from app.config import settings
 from app.db import SessionLocal, engine
 from app.models.db_models import Base
-from app.routers import chat, followup, kb, tenant, contacts
+from app.routers import chat, followup, kb, tenant, contacts, sop
 from app.utils.logging import configure_logging
 from app import dependencies
 
@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(tenant.router, prefix="/tenants", tags=["tenant"])
     app.include_router(followup.router, prefix="/followup", tags=["followup"])
     app.include_router(contacts.router, prefix="/contacts", tags=["contacts"])
+    app.include_router(sop.router, prefix="/sop", tags=["sop"])
 
     @app.on_event("startup")
     async def _startup():
