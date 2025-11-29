@@ -11,6 +11,7 @@ export type ChatMessage = {
   text: string;
   time: string;
   context?: string[];
+  typing?: boolean;
 };
 
 export type FollowupCounts = {

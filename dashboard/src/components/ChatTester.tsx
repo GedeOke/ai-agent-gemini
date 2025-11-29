@@ -25,7 +25,17 @@ export function ChatTester({ messages, input, onInputChange, onSend }: Props) {
                     : "bg-white dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"
                 }`}
               >
-                <div>{m.text}</div>
+                <div className={`${m.typing ? "animate-pulse" : ""}`}>
+                  {m.typing ? (
+                    <span className="flex gap-1">
+                      <span className="w-2 h-2 rounded-full bg-white/70 dark:bg-slate-300/80 inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-white/60 dark:bg-slate-400/80 inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-white/50 dark:bg-slate-500/80 inline-block" />
+                    </span>
+                  ) : (
+                    m.text
+                  )}
+                </div>
                 <div className="text-[10px] opacity-70 mt-1">{m.time}</div>
                 {m.context && m.context.length > 0 && (
                   <div className="text-[10px] opacity-80 mt-1">ctx: {m.context.slice(0, 2).join(" | ")}</div>

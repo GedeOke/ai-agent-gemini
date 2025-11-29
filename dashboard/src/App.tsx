@@ -139,6 +139,8 @@ function App() {
     const newMsg: ChatMessage = { sender: "user", text: chatInput, time };
     setChatMessages((prev) => [...prev, newMsg]);
     setChatInput("");
+    const typingMsg: ChatMessage = { sender: "ai", text: "", time: new Date().toLocaleTimeString(), typing: true };
+    setChatMessages((prev) => [...prev, typingMsg]);
     try {
       const res = await fetch(`${config.baseUrl}/chat`, {
         method: "POST",
@@ -159,8 +161,9 @@ function App() {
         time: new Date().toLocaleTimeString(),
         context: data.retrieved_context,
       };
-      setChatMessages((prev) => [...prev, reply]);
+      setChatMessages((prev) => [...prev.filter((m) => !m.typing), reply]);
     } catch (err) {
+      setChatMessages((prev) => prev.filter((m) => !m.typing));
       console.error(err);
     }
   };
