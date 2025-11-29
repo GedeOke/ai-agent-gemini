@@ -37,11 +37,11 @@ async def upsert_kb(
 
 @router.post("/upload")
 async def upload_kb_file(
+    tenant_key: ApiKeyDep,
+    session: AsyncSession = Depends(get_session),
     tenant_id: str = Form(...),
     tags: str | None = Form(default=None),
     file: UploadFile = File(...),
-    tenant_key: ApiKeyDep,
-    session: AsyncSession = Depends(get_session),
 ) -> dict:
     if tenant_key not in ("global", "open") and tenant_id != tenant_key:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="tenant mismatch")
