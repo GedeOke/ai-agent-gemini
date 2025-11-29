@@ -56,3 +56,34 @@ class FollowUpModel(Base):
     sent_at = Column(DateTime, nullable=True)
 
     tenant = relationship("Tenant", back_populates="followups")
+
+
+class ContactModel(Base):
+    __tablename__ = "contacts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(String, ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    meta = Column("metadata", JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    tenant = relationship("Tenant")
+    chat_messages = relationship("ChatMessageModel", back_populates="contact", cascade="all, delete-orphan")
+
+
+class ChatMessageModel(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(String, ForeignKey("tenants.tenant_id", ondelete="CASCADE"), nullable=False, index=True)
+    contact_id = Column(UUID(as_uuid=True), ForeignKey("contacts.id", ondelete="SET NULL"), nullable=True)
+    user_id = Column(String, nullable=False)
+    role = Column(String, nullable=False)  # user|assistant|system
+    content = Column(Text, nullable=False)
+    metadata = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    contact = relationship("ContactModel", back_populates="chat_messages")

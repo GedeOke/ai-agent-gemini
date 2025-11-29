@@ -11,6 +11,7 @@ from app.services.prompt import PromptBuilder
 from app.services.rag import RAGService
 from app.services.scheduler import FollowUpScheduler
 from app.services.tenant import TenantService
+from app.services.contacts import ContactService
 
 # Shared singletons for now; swap with DI container later.
 embedding_client = EmbeddingClient(
@@ -27,6 +28,7 @@ tenant_service = TenantService()
 orchestrator = Orchestrator(llm_client, rag_service, prompt_builder, post_processor)
 scheduler = FollowUpScheduler(poll_interval_seconds=settings.followup_poll_interval_seconds)
 ingest_service = IngestService()
+contact_service = ContactService()
 
 __all__ = [
     "rag_service",
@@ -41,4 +43,5 @@ __all__ = [
     "SessionLocal",
     "scheduler",
     "ingest_service",
+    "contact_service",
 ]

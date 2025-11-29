@@ -81,3 +81,33 @@ class FollowUpRequest(BaseModel):
     scheduled_at: datetime
     channel: str = "web"
     metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class Contact(BaseModel):
+    id: Optional[str] = None
+    tenant_id: str
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class ContactCreate(BaseModel):
+    tenant_id: str
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ChatMessage(BaseModel):
+    id: Optional[str] = None
+    tenant_id: str
+    contact_id: Optional[str] = None
+    user_id: str
+    role: Literal["user", "assistant", "system"]
+    content: str
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: Optional[datetime] = None

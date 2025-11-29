@@ -46,6 +46,10 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 - `POST /followup/schedule` — jadwalkan follow-up (DB).
 - `GET /followup/pending` — lihat antrian follow-up per tenant (pending).
 - `GET /followup?status=pending|sent|failed` — filter follow-up per status.
+- `POST /contacts` — create/update contact (nama/phone/email, per tenant).
+- `GET /contacts` — list contacts per tenant.
+- `POST /contacts/logs` — simpan log percakapan (history) per tenant/contact.
+- `GET /contacts/logs` — list history (optional filter contact_id).
 - `GET /health` — status sederhana.
 
 ## Batasan saat ini
