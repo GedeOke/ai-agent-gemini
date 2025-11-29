@@ -40,7 +40,7 @@ async def upload_kb_file(
     tenant_id: str = Form(...),
     tags: str | None = Form(default=None),
     file: UploadFile = File(...),
-    tenant_key: ApiKeyDep = Depends(),
+    tenant_key: ApiKeyDep,
     session: AsyncSession = Depends(get_session),
 ) -> dict:
     if tenant_key not in ("global", "open") and tenant_id != tenant_key:
