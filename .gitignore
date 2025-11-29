@@ -24,6 +24,9 @@ mypy_cache/
 .tox/
 dist/
 build/
+node_modules/
+dashboard/node_modules/
+dashboard/dist/
 *.egg-info/
 .ipynb_checkpoints
 *.ipynb
