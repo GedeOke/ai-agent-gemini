@@ -11,7 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 # Configure env BEFORE importing app
-os.environ.setdefault("API_KEY", "global-key")
+os.environ["API_KEY"] = "changeme_global"
 db_path = ROOT / "test_sop.db"
 if db_path.exists():
     db_path.unlink()
@@ -47,7 +47,7 @@ def _create_tenant(client):
         "followup_enabled": True,
         "followup_interval_minutes": 60,
     }
-    res = client.put("/tenants/demo/settings", json=payload, headers={"X-API-Key": "global-key"})
+    res = client.put("/tenants/demo/settings", json=payload, headers={"X-API-Key": os.environ["API_KEY"]})
     assert res.status_code == 200, res.text
     data = res.json()
     return data["api_key"]
