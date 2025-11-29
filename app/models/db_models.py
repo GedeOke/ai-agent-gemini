@@ -83,7 +83,7 @@ class ChatMessageModel(Base):
     user_id = Column(String, nullable=False)
     role = Column(String, nullable=False)  # user|assistant|system
     content = Column(Text, nullable=False)
-    metadata = Column(JSON, default=dict)
+    meta = Column("metadata", JSON, default=dict)  # avoid reserved attr name
     created_at = Column(DateTime, default=datetime.utcnow)
 
     contact = relationship("ContactModel", back_populates="chat_messages")

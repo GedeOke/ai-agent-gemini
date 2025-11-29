@@ -79,7 +79,7 @@ class ContactService:
                 user_id=msg.user_id,
                 role=msg.role,
                 content=msg.content,
-                metadata=msg.metadata,
+                meta=msg.metadata,
             )
             session.add(model)
             await session.commit()
@@ -119,6 +119,6 @@ class ContactService:
             user_id=model.user_id,
             role=model.role,
             content=model.content,
-            metadata=model.metadata or {},
+            metadata=model.meta or {},
             created_at=model.created_at,
         )
