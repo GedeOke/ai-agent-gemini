@@ -1,36 +1,22 @@
-import { useState } from "react";
 import type { ChatMessage } from "../types";
 
-export function ChatTester() {
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { sender: "ai", text: "Hi, saya AI Agent. Coba uji respons di sini.", time: new Date().toLocaleTimeString() },
-  ]);
+type Props = {
+  messages: ChatMessage[];
+  input: string;
+  onInputChange: (v: string) => void;
+  onSend: () => void;
+};
 
-  const handleSendChat = () => {
-    if (!chatInput.trim()) return;
-    const time = new Date().toLocaleTimeString();
-    setChatMessages((prev) => [...prev, { sender: "user", text: chatInput, time }]);
-    setChatInput("");
-    setTimeout(
-      () =>
-        setChatMessages((prev) => [
-          ...prev,
-          { sender: "ai", text: "Ini respons dummy untuk preview UI.", time: new Date().toLocaleTimeString() },
-        ]),
-      500
-    );
-  };
-
+export function ChatTester({ messages, input, onInputChange, onSend }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
       <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Chatbot Tester</h2>
-        <span className="text-xs text-slate-500 dark:text-slate-400">Dummy preview</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">Live call to /chat</span>
       </div>
       <div className="p-4 space-y-3">
         <div className="h-72 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3 space-y-3">
-          {chatMessages.map((m, idx) => (
+          {messages.map((m, idx) => (
             <div key={idx} className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow ${
@@ -41,20 +27,23 @@ export function ChatTester() {
               >
                 <div>{m.text}</div>
                 <div className="text-[10px] opacity-70 mt-1">{m.time}</div>
+                {m.context && m.context.length > 0 && (
+                  <div className="text-[10px] opacity-80 mt-1">ctx: {m.context.slice(0, 2).join(" | ")}</div>
+                )}
               </div>
             </div>
           ))}
         </div>
         <div className="flex gap-2">
           <input
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendChat()}
+            value={input}
+            onChange={(e) => onInputChange(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder="Ketik pesan uji..."
             className="flex-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
           />
           <button
-            onClick={handleSendChat}
+            onClick={onSend}
             className="rounded-lg bg-primary text-white px-4 py-2 text-sm font-semibold hover:bg-primary-dark"
           >
             Send

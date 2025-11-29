@@ -1,8 +1,10 @@
-export function FollowupWidget() {
+import type { FollowupCounts } from "../types";
+
+export function FollowupWidget({ counts }: { counts: FollowupCounts }) {
   const rows = [
-    { label: "Pending", value: 3, bar: "w-2/3", color: "bg-amber-500" },
-    { label: "Sent", value: 12, bar: "w-5/6", color: "bg-emerald-500" },
-    { label: "Failed", value: 0, bar: "w-1/6", color: "bg-rose-500" },
+    { label: "Pending", value: counts.pending, bar: "w-2/3", color: "bg-amber-500" },
+    { label: "Sent", value: counts.sent, bar: "w-5/6", color: "bg-emerald-500" },
+    { label: "Failed", value: counts.failed, bar: "w-1/6", color: "bg-rose-500" },
   ];
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">

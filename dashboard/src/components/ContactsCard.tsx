@@ -1,9 +1,6 @@
-export function ContactsCard() {
-  const contacts = [
-    { name: "Budi", phone: "+62 812 3456 7890", status: "Active" },
-    { name: "Ana", phone: "+62 811 1111", status: "Pending" },
-    { name: "Celine", phone: "+62 899 8888", status: "Follow-up" },
-  ];
+import type { Contact } from "../types";
+
+export function ContactsCard({ contacts }: { contacts: Contact[] }) {
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
       <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
