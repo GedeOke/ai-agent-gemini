@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 from app.models.schemas import ChatRequest, TenantSettings
+from app.services.sop import SopStateMachine
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,9 @@ class PromptBuilder:
     Build structured prompts so instructions, persona, and SOP are consistently applied.
     """
 
+    def __init__(self, sop_machine: SopStateMachine | None = None) -> None:
+        self.sop_machine = sop_machine
+
     def build_chat_prompt(
         self,
         payload: ChatRequest,
@@ -19,12 +23,16 @@ class PromptBuilder:
     ) -> str:
         persona = tenant_settings.persona
         sop_steps = "\n".join(f"{step.order}. {step.description}" for step in tenant_settings.sop.steps)
+        sop_hint = ""
+        if self.sop_machine:
+            sop_hint = self.sop_machine.sop_hint(tenant_settings.sop, payload)
         context_block = "\n".join(retrieved_context) if retrieved_context else "Tidak ada konteks tambahan."
 
         prompt = (
             f"Peran kamu: AI asisten {persona.persona} yang berbicara dengan gaya: {persona.style_prompt}. "
             f"Tone: {persona.tone}. Bahasa utama: {persona.language}.\n"
             f"Ikuti SOP berikut (urutkan sesuai kebutuhan percakapan):\n{sop_steps if sop_steps else '- Tidak ada SOP khusus.'}\n\n"
+            f"Panduan langkah saat ini: {sop_hint}\n\n"
             f"Gunakan konteks pengetahuan bisnis berikut jika relevan:\n{context_block}\n\n"
             f"Percakapan terbaru:\n"
         )

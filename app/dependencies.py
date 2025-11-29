@@ -12,6 +12,7 @@ from app.services.rag import RAGService
 from app.services.scheduler import FollowUpScheduler
 from app.services.tenant import TenantService
 from app.services.contacts import ContactService
+from app.services.sop import SopStateMachine
 
 # Shared singletons for now; swap with DI container later.
 embedding_client = EmbeddingClient(
@@ -21,7 +22,7 @@ embedding_client = EmbeddingClient(
 )
 rag_service = RAGService(embedding_client)
 post_processor = PostProcessor()
-prompt_builder = PromptBuilder()
+prompt_builder = PromptBuilder(SopStateMachine())
 llm_client = GeminiClient(settings.gemini_api_key)
 followup_service = FollowUpService()
 tenant_service = TenantService()
@@ -29,6 +30,7 @@ orchestrator = Orchestrator(llm_client, rag_service, prompt_builder, post_proces
 scheduler = FollowUpScheduler(poll_interval_seconds=settings.followup_poll_interval_seconds)
 ingest_service = IngestService()
 contact_service = ContactService()
+sop_machine = SopStateMachine()
 
 __all__ = [
     "rag_service",
@@ -44,4 +46,5 @@ __all__ = [
     "scheduler",
     "ingest_service",
     "contact_service",
+    "sop_machine",
 ]

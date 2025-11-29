@@ -3,7 +3,7 @@
 Branch: `feature/contacts-history` (backend)
 
 ## Ringkas
-Backend FastAPI untuk AI Agent dengan persistence, per-tenant auth, RAG embeddings (Gemini atau lokal), scheduler follow-up sederhana (polling), upload KB, dan kontak + log percakapan (CRM-ready).
+Backend FastAPI untuk AI Agent dengan persistence, per-tenant auth, RAG embeddings (Gemini atau lokal), scheduler follow-up sederhana (polling), upload KB, kontak + log percakapan (CRM-ready), dan hint SOP sales flow di prompt.
 
 ## Arsitektur Singkat
 - `app/main.py` — FastAPI app, CORS, error handlers, router registrasi, auto create table (opsional).
@@ -40,7 +40,7 @@ Header wajib: `X-API-Key: <tenant_or_global_key>`.
 Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 
 ## Endpoint utama
-- `POST /chat` — payload `ChatRequest` (tenant_id, user_id, messages[], channel, locale). Alur: retrieve konteks (DB RAG), build prompt (persona + SOP), panggil LLM, pecah jawaban jadi bubble.
+- `POST /chat` — payload `ChatRequest` (tenant_id, user_id, messages[], channel, locale). Alur: retrieve konteks (DB RAG), build prompt (persona + SOP dengan hint langkah), panggil LLM, pecah jawaban jadi bubble.
 - `POST /kb/upsert` — tambah/ubah pengetahuan (DB) + simpan embedding. Membutuhkan tenant sudah ada.
 - `POST /kb/upload` — upload file (pdf/txt/md/csv/tsv/xlsx) multipart, otomatis parse→chunk→embed→KB.
 - `GET /tenants/{tenant_id}/settings` — ambil konfigurasi tenant (persona, SOP, jam kerja, API key).
