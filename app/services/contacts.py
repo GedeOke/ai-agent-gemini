@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import List, Optional
 
 import phonenumbers
@@ -60,7 +61,12 @@ class ContactService:
             raise exc
 
     async def get(self, session: AsyncSession, contact_id: str, tenant_id: str) -> Optional[Contact]:
-        stmt = select(ContactModel).where(ContactModel.id == contact_id, ContactModel.tenant_id == tenant_id)
+        try:
+            cid = uuid.UUID(contact_id)
+        except Exception:
+            logger.warning("Invalid contact_id format: %s", contact_id)
+            return None
+        stmt = select(ContactModel).where(ContactModel.id == cid, ContactModel.tenant_id == tenant_id)
         row = (await session.execute(stmt)).scalar_one_or_none()
         return self._to_schema(row) if row else None
 
@@ -73,9 +79,16 @@ class ContactService:
 
     async def log_message(self, session: AsyncSession, msg: ChatMessage) -> None:
         try:
+            cid = None
+            if msg.contact_id:
+                try:
+                    cid = uuid.UUID(msg.contact_id)
+                except Exception:
+                    logger.warning("Invalid contact_id in message: %s", msg.contact_id)
+                    cid = None
             model = ChatMessageModel(
                 tenant_id=msg.tenant_id,
-                contact_id=msg.contact_id,
+                contact_id=cid,
                 user_id=msg.user_id,
                 role=msg.role,
                 content=msg.content,
@@ -89,11 +102,18 @@ class ContactService:
             raise exc
 
     async def history(self, session: AsyncSession, tenant_id: str, contact_id: Optional[str] = None, limit: int = 50) -> List[ChatMessage]:
-        stmt = select(ChatMessageModel).where(ChatMessageModel.tenant_id == tenant_id).order_by(
-            ChatMessageModel.created_at.desc()
-        ).limit(limit)
+        stmt = (
+            select(ChatMessageModel)
+            .where(ChatMessageModel.tenant_id == tenant_id)
+            .order_by(ChatMessageModel.created_at.desc())
+            .limit(limit)
+        )
         if contact_id:
-            stmt = stmt.where(ChatMessageModel.contact_id == contact_id)
+            try:
+                cid = uuid.UUID(contact_id)
+                stmt = stmt.where(ChatMessageModel.contact_id == cid)
+            except Exception:
+                logger.warning("Invalid contact_id filter: %s", contact_id)
         rows = (await session.execute(stmt)).scalars().all()
         return [self._msg_schema(r) for r in rows]
 
