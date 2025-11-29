@@ -43,20 +43,6 @@ async def list_contacts(
     return await dependencies.contact_service.list(session, tenant_key, limit=limit)
 
 
-@router.get("/{contact_id}", response_model=Contact)
-async def get_contact(
-    contact_id: str,
-    tenant_key: ApiKeyDep,
-    session: AsyncSession = Depends(get_session),
-) -> Contact:
-    if tenant_key in ("global", "open"):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="tenant_id header required")
-    contact = await dependencies.contact_service.get(session, contact_id, tenant_key)
-    if not contact:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="contact not found")
-    return contact
-
-
 @router.post("/logs")
 async def log_message(
     payload: ChatMessage,
@@ -86,3 +72,17 @@ async def list_history(
     if tenant_key in ("global", "open"):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="tenant_id header required")
     return await dependencies.contact_service.history(session, tenant_key, contact_id, limit)
+
+
+@router.get("/id/{contact_id}", response_model=Contact)
+async def get_contact(
+    contact_id: str,
+    tenant_key: ApiKeyDep,
+    session: AsyncSession = Depends(get_session),
+) -> Contact:
+    if tenant_key in ("global", "open"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="tenant_id header required")
+    contact = await dependencies.contact_service.get(session, contact_id, tenant_key)
+    if not contact:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="contact not found")
+    return contact
