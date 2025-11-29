@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     )
     auto_create_tables: bool = True
     followup_poll_interval_seconds: int = Field(default=15, description="Scheduler polling interval for follow-ups")
+    embedding_provider: str = Field(default="gemini", description="gemini|local")
+    embedding_model_name: str = Field(
+        default="models/embedding-001",
+        description="Gemini model name or local sentence-transformers model id",
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod

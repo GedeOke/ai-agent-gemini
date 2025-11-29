@@ -13,7 +13,11 @@ from app.services.scheduler import FollowUpScheduler
 from app.services.tenant import TenantService
 
 # Shared singletons for now; swap with DI container later.
-embedding_client = EmbeddingClient(settings.gemini_api_key)
+embedding_client = EmbeddingClient(
+    api_key=settings.gemini_api_key,
+    model=settings.embedding_model_name,
+    provider=settings.embedding_provider,
+)
 rag_service = RAGService(embedding_client)
 post_processor = PostProcessor()
 prompt_builder = PromptBuilder()

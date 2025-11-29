@@ -59,3 +59,12 @@ Untuk tenant-scope, sertakan juga `X-Tenant-Id: <tenant_id>`.
 2) Integrasi vector DB/ANN (Weaviate/PGVector/Redis) untuk skala besar.  
 3) Hardening auth: key per-tenant rotasi, rate limiting, logging terstruktur + metrics.  
 4) Channel adapter pertama (Telegram/WA) + media handling + shipping API nyata.
+
+## Embeddings
+- Provider configurable: `gemini` (default) atau `local`.
+- Env:
+  - `EMBEDDING_PROVIDER=gemini|local`
+  - `EMBEDDING_MODEL_NAME`:
+    - Gemini: `models/embedding-001`
+    - Local example: `sentence-transformers/all-MiniLM-L6-v2`
+- Jika `gemini` rate-limit, bisa switch ke `local` (butuh `sentence-transformers` + model download).
